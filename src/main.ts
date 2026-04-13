@@ -219,7 +219,9 @@ export default class GraphLinkTypesPlugin extends Plugin {
         }
         
         // For each link in the graph, update the position of its text.
+        // Guard against null source/target — can happen with broken wikilinks
         renderer.links.forEach((link: ObsidianLink) => {
+            if (!link || !link.source || !link.target) return;
             if (updateMap) {
                 const key = this.linkManager.generateKey(link.source.id, link.target.id);
                 if (!this.linkManager.linksMap.has(key)) {
