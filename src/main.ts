@@ -90,6 +90,11 @@ export default class GraphLinkTypesPlugin extends Plugin {
                 this.api = getAPI();
                 this.linkManager.api = this.api;
                 this.initEventHandlers();
+                // Only start rendering if a graph view is already open.
+                // Otherwise layout-change handler picks it up when one opens.
+                if (this.currentRenderer) {
+                    this.startUpdateLoop();
+                }
             }));
             return;
         }
