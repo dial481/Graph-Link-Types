@@ -67,7 +67,7 @@ class GraphLinkTypesSettingTab extends PluginSettingTab {
 export default class GraphLinkTypesPlugin extends Plugin {
     
     settings: GraphLinkTypesPluginSettings;
-    api = getAPI();
+    api: ReturnType<typeof getAPI> = null;
     currentRenderer: ObsidianRenderer | null = null;
     animationFrameId: number | null = null;
     linkManager = new LinkManager();
@@ -75,17 +75,30 @@ export default class GraphLinkTypesPlugin extends Plugin {
 
     // Lifecycle method called when the plugin is loaded
     async onload(): Promise<void> {
-        
+
         await this.loadSettings();
         this.addSettingTab(new GraphLinkTypesSettingTab(this.app, this));
 
-        // Check if the Dataview API is available
+        // Try to get Dataview API — may not be ready yet if Dataview
+        // loads after this plugin (class field initializers run before
+        // any lifecycle method, so getAPI() at construction time fails)
+        this.api = getAPI();
         if (!this.api) {
-            console.error("Dataview plugin is not available.");
-            new Notice("Data plugin is not available.");
+            // Dataview not ready yet — wait for its API registration event
+            // @ts-ignore
+            this.registerEvent(this.app.metadataCache.on("dataview:api-ready", () => {
+                this.api = getAPI();
+                this.linkManager.api = this.api;
+                this.initEventHandlers();
+            }));
             return;
         }
 
+        this.linkManager.api = this.api;
+        this.initEventHandlers();
+    }
+
+    private initEventHandlers(): void {
         // Handle layout changes
         this.registerEvent(this.app.workspace.on('layout-change', () => {
             this.handleLayoutChange();
@@ -102,7 +115,6 @@ export default class GraphLinkTypesPlugin extends Plugin {
                 this.handleLayoutChange();
             }
         }));
-
     }
 
     async loadSettings() {

@@ -8,7 +8,7 @@ import extractLinks from 'markdown-link-extractor';
 
 export class LinkManager {
     linksMap: Map<string, GltLink>;
-    api = getAPI();
+    api: any = null;
     currentTheme : string;
     textColor : string;
     tagColors: Map<string, GltLegendGraphic>;
