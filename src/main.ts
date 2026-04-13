@@ -176,11 +176,14 @@ export default class GraphLinkTypesPlugin extends Plugin {
     
     waitForRenderer(): Promise<void> {
         return new Promise((resolve) => {
-            const checkInterval = 500; // Interval in milliseconds to check for the renderer
+            const checkInterval = 500;
+            const maxWait = 10000; // 10 seconds max — don't poll forever
+            let elapsed = 0;
 
             const intervalId = setInterval(() => {
                 const renderer = this.findRenderer();
-                if (renderer) {
+                elapsed += checkInterval;
+                if (renderer || elapsed >= maxWait) {
                     clearInterval(intervalId);
                     resolve();
                 }

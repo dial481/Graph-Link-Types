@@ -1,6 +1,6 @@
 
 import { ObsidianRenderer, ObsidianLink, LinkPair, GltLink, DataviewLinkType , GltLegendGraphic} from 'src/types';
-import { getAPI  } from 'obsidian-dataview';
+
 import { Text, TextStyle , Graphics, Color}  from 'pixi.js';
 // @ts-ignore
 import extractLinks from 'markdown-link-extractor';
